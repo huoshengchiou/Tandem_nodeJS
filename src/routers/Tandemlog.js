@@ -280,19 +280,22 @@ router.post("/findmygame", (req, res) => {
 });
 
 //------------------會員id找擁有折價券-----------------------
-// router.post("/findmycup", (req, res) => {
-//   const sql = "SELECT mbCup FROM mb_info WHERE mbId=?";
-//   db.queryAsync(sql, [req.body.mbId])
-//     .then(r => {
-//       const arr = JSON.parse(r[0].mbCup);
-//       console.log(typeof arr);
-//       const sql2 = `SELECT \* FROM \`sales\` WHERE \`sId\`IN ?`;
-//       return db.queryAsync(sql2, [arr]);
-//     })
-//     .then(r2 => {
-//       return res.json(r2);
-//     });
-// });
+router.post("/findmycup", (req, res) => {
+  const sql = "SELECT mbCup FROM mb_info WHERE mbId=?";
+  db.queryAsync(sql, [req.body.mbId])
+    .then(r => {
+      // const arr = JSON.parse(r[0].mbCup);
+      // console.log(typeof arr);
+
+      const oristring = r[0].mbCup;
+      const arr = oristring.split(",");
+      const sql2 = `SELECT \* FROM \`sales\` WHERE \`sId\`IN (?)`;
+      return db.queryAsync(sql2, [arr]);
+    })
+    .then(r2 => {
+      return res.json(r2);
+    });
+});
 //------------從會員id尋找好友推文----------先寫成功搜尋之後補失敗搜尋處理
 router.post("/findmyFpost", (req, res) => {
   const sql = "SELECT mbFd FROM mb_info WHERE mbId=?";
@@ -342,14 +345,11 @@ router.post("/invate", (req, res) => {
     body: req.body,
     msg: ""
   };
- 
   if (!req.body) {
     FetchSeverResponse.msg = "缺少申請資料";
     return res.json(FetchSeverResponse);
   }
   const sql = `SELECT \* FROM \`mb_info\` WHERE \`mbId\`=?`;
-  console.log(req.body)
-
   db.queryAsync(sql, [req.body.mbId])
     .then(r => {
       const inviteUserData = r[0];
@@ -366,6 +366,13 @@ router.post("/invate", (req, res) => {
       }
     });
 });
+// 檢索申請好友事件_old
+// router.post("/confirmfriend", (req, res) => {
+//   const sql = `SELECT \`invatembId\`, \`inviteuserData\` FROM \`add_friend\` WHERE \`addmbId\` = ${req.body.mbId}`;
+//   db.queryAsync(sql).then(r => {
+//     return res.json(r);
+//   });
+// });
 // 檢索申請好友事件  //修正
 router.post("/confirmfriend", (req, res) => {
   const FetchSeverResponse = {
@@ -389,9 +396,10 @@ router.post("/confirmfriend", (req, res) => {
     .catch(err => {
       FetchSeverResponse.body = err;
       FetchSeverResponse.msg = "沒有檢索資料";
-      return res.json();
+      return res.json(FetchSeverResponse);
     });
 });
+
 //成立好友
 router.post("/iamufriend", (req, res) => {
   const FetchSeverResponse = {
@@ -449,10 +457,15 @@ router.post("/iamufriend", (req, res) => {
         (FetchSeverResponse.msg = "已經成為好友囉");
       FetchSeverResponse.body = r5;
       return res.json(FetchSeverResponse);
+    })
+    .catch(err => {
+      FetchSeverResponse.msg = "成為好友的過程失敗了";
+      FetchSeverResponse.body = err;
+      return res.json(FetchSeverResponse);
     });
 });
 
-// 從mbId與對方Id刪除好友
+// 從mbId與對方Id刪除好友---------------------
 router.post("/killfriend", (req, res) => {
   const FetchSeverResponse = {
     success: false,
@@ -479,9 +492,25 @@ router.post("/killfriend", (req, res) => {
         FetchSeverResponse.body = r2;
         return res.json(FetchSeverResponse);
       }
-      FetchSeverResponse.success = true;
-      FetchSeverResponse.msg = "刪除好友成功";
-      return res.json(FetchSeverResponse);
+      // FetchSeverResponse.success = true;
+      // FetchSeverResponse.msg = "刪除好友成功";
+      // return res.json(FetchSeverResponse);
+      // 成功後把好友資訊再搜尋一次結果給前端更新畫面
+      const sql = "SELECT mbFd FROM mb_info WHERE mbId=?";
+      return db.queryAsync(sql, [req.body.mbId]);
+    })
+    .then(r3 => {
+      const arr = JSON.parse(r3[0].mbFd);
+      //用obj裝進sql語法
+      const sql = `SELECT \* FROM \`mb_info\` WHERE \`mbId\`IN (${arr})`;
+      return db.queryAsync(sql);
+    })
+    .then(r4 => {
+      return res.json(r4);
+      //會員朋友陣列資料
+    })
+    .catch(err => {
+      return res.json(err);
     });
 });
 
