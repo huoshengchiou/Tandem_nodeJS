@@ -1,19 +1,17 @@
-const mysql = require('mysql');
-const bluebird = require('bluebird');
+const mysql = require("mysql");
+const bluebird = require("bluebird");
 
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'community',
-    // "socketPath": "/Applications/MAMP/tmp/mysql/mysql.sock"
-    "socketPath": "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock"
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "tandem",
 
-
-
-}, console.log('connected to database'));
-db.on('error', (event)=>{
-    console.log(error);
+  // for MAC PC USE
+  socketPath: "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock"
+});
+db.on("error", event => {
+  console.log(error);
 });
 db.connect();
 
