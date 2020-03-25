@@ -11,7 +11,7 @@ const db = mysql.createConnection({
   socketPath: "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock"
 });
 db.on("error", event => {
-  console.log(error);
+  console.log(event);
 });
 db.connect();
 

@@ -141,5 +141,5 @@ app.use((req, res) => {
 
 // 固定port號6001
 app.listen(6001, () => {
-  console.log(`Server has started on port: 6001`);
+  console.log(`Server has started on port: 6001  -- node 在 port:6001運行`);
 });

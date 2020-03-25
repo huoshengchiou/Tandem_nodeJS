@@ -1,6 +1,6 @@
 const express = require("express");
 const moment = require("moment-timezone");
-const db = require(__dirname + "/../connect_db");
+const db = require(__dirname + "/../_connect_db");
 
 const router = express.Router();
 
