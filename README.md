@@ -1,7 +1,13 @@
-# Tandem_nodeJS
-Tandem後端使用 #請大家從這份出發，檢視自己目前現有react跑起來如何
+### Tandem_nodeJS
+Tandem 後端node使用公版 
 
-### 資料庫名稱  tandem (全小寫)
+#主要對自己的router JS進行修改
+#請大家從這份出發，檢視自己目前現有react跑起來如何
 
-### node固定port號6001
+
+處理原則
+
+# 資料庫名稱 tandem (全小寫)
+
+# node  固定port號======> 6001
 
