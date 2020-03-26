@@ -79,7 +79,7 @@ app.post("/fgpwd", (req, res) => {
       to: `${fgtraceE}`, // list of receivers
       subject: "Tandem 密碼重設驗證信", // Subject line
       text: "Hello world?", // plain text body
-      html: "<h1>▚請問你掉的是金密碼，還是銀密碼? 不然還是請你重設密碼▞ </h1>" // html body
+      html: `<h1>▚請問你掉的是金密碼，還是銀密碼? 不然還是請你重設密碼▞ </h1><br><h1><a href='http://localhost:6001/tandem/member/redirectpwdset?mbE=${fgtraceE}'>應該是Excalibur</a></h1>` // html body
     });
     return res.json({ 你的密碼驗證信: "寄出囉" });
   }

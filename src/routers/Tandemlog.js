@@ -580,7 +580,7 @@ router.post("/logout", (req, res) => {
     });
 });
 
-router.get("/redirectpedset", (req, res) => {
+router.get("/redirectpwdset", (req, res) => {
   res.sendFile(__dirname + "/member/resetmypwd.html");
 });
 
