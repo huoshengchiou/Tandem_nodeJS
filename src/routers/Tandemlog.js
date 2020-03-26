@@ -33,22 +33,34 @@ router.post("/check", (req, res) => {
   //   sql語法建立
   const sql = `SELECT \* FROM \`mb_info\` WHERE \`mbE\`= ? AND \`mbPwd\` = ?`;
 
-  db.queryAsync(sql, [req.body.mbE, req.body.mbPwd]).then(r => {
-    // 撥開RowDataPacket obj拿裡面的東西
-    // console.log(r[0]);
-    // 沒有比對成功的帳號
-    if (!r || !r.length) {
-      FetchSeverResponse.msg = "帳號或密碼錯誤";
-      return res.json(FetchSeverResponse);
-    }
-    //成功之後返回使用者資料，驅動前端進行狀態修改
-    FetchSeverResponse.success = true;
-    FetchSeverResponse.body = r[0];
-    FetchSeverResponse.msg = "登入成功";
+  db.queryAsync(sql, [req.body.mbE, req.body.mbPwd])
+    .then(r => {
+      // 撥開RowDataPacket obj拿裡面的東西
+      // console.log(r[0]);
+      // 沒有比對成功的帳號
+      if (!r || !r.length) {
+        FetchSeverResponse.msg = "帳號或密碼錯誤";
+        return res.json(FetchSeverResponse);
+      }
+      //成功之後返回使用者資料，驅動前端進行狀態修改
+      // FetchSeverResponse.success = true;
+      // 將取得個人資料寄存在回覆中
+      FetchSeverResponse.body = r[0];
+      FetchSeverResponse.msg = "取得資料成功";
 
-    //   -----------------回覆-------------------
-    return res.json(FetchSeverResponse);
-  });
+      // 進行上線設定
+      const sql = `UPDATE \`mb_info\` SET \`mbOn\`=1  WHERE mbE=?`;
+      return db.queryAsync(sql, [req.body.mbE]);
+    })
+    .then(r2 => {
+      if (!r2.affectedRows) {
+        FetchSeverResponse.msg = "上線設定失敗";
+        return res.json(FetchSeverResponse);
+      }
+      FetchSeverResponse.success = true;
+      FetchSeverResponse.msg = "完全登入成功";
+      return res.json(FetchSeverResponse);
+    });
 });
 
 // ---------------------------------------------------------------會員註冊---------------------------------------------
@@ -511,6 +523,60 @@ router.post("/killfriend", (req, res) => {
     })
     .catch(err => {
       return res.json(err);
+    });
+});
+
+//登入後取得用戶頭像
+
+router.post("/findmyhomeava", (req, res) => {
+  const FetchSeverResponse = {
+    success: false,
+    body: req.body,
+    msg: ""
+  };
+  const sql = "SELECT mbAva FROM mb_info WHERE mbId=?";
+  db.queryAsync(sql, [req.body.mbId])
+    .then(r => {
+      if (!r.length) {
+        FetchSeverResponse.msg = "資料庫取得頭像失敗";
+        return res.json(FetchSeverResponse);
+      }
+      FetchSeverResponse.success = true;
+      //只會有單筆     obj{obj}
+      FetchSeverResponse.body = r[0];
+      FetchSeverResponse.msg = "取得個人頭像";
+      return res.json(FetchSeverResponse);
+    })
+    .catch(err => {
+      FetchSeverResponse.msg = "搜尋頭像失敗";
+      FetchSeverResponse.body = err;
+      return res.json(FetchSeverResponse);
+    });
+});
+
+// 登出後歸零上線狀態
+router.post("/logout", (req, res) => {
+  const FetchSeverResponse = {
+    success: false,
+    body: req.body,
+    msg: ""
+  };
+  const sql = `UPDATE \`mb_info\` SET \`mbOn\`=0  WHERE mbId=?`;
+  db.queryAsync(sql, [req.body.mbId])
+    .then(r => {
+      if (!r.affectedRows) {
+        FetchSeverResponse.msg = "登出設定失敗";
+        return res.json(FetchSeverResponse);
+      }
+      FetchSeverResponse.success = true;
+      FetchSeverResponse.body = r;
+      FetchSeverResponse.msg = "登出設定成功";
+      return res.json(FetchSeverResponse);
+    })
+    .catch(err => {
+      FetchSeverResponse.msg = "登出設定失敗";
+      FetchSeverResponse.body = err;
+      return res.json(FetchSeverResponse);
     });
 });
 
