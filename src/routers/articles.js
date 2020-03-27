@@ -1,6 +1,7 @@
 const express = require("express");
 const db = require(__dirname + "/../_connect_db");
 const router = express.Router();
+const moment = require("moment-timezone");
 const dateFormat ="YYYY-MM-DD";
 const url = require('url');
 
@@ -30,11 +31,14 @@ router.post('/addNewArticle', (req, res) => {
 router.get("/", function(req, res){
     const sql = `SELECT * FROM articles`;
     db.queryAsync(sql).then(result =>{
-        console.log(result)
-        return res.json(result);
-    })
+        result.forEach((row, idx) => {
+            row.created_at = moment(row.created_at).format(dateFormat);
+            row.updated_at = moment(row.updated_at).format(dateFormat);
+        }) 
+    console.log(result)
+     res.json(result);
 })
-
+})
 //取熱門文章4筆
 router.get("/hot", function(req, res){
     const sql = `SELECT * FROM articles ORDER BY updated_at DESC LIMIT 4 ;`;
