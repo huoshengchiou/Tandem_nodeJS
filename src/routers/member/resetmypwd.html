@@ -140,12 +140,12 @@
             <section class="M-right">
 
                 <h2>請輸入你的密碼進行重置</h2>
-                <form class="M-formgroup" action="" method="POST">
+                <form class="M-formgroup" method="POST" onsubmit="resetmypwd(); return false">
                     <label for="">密碼</label>
-                    <input type="password" placeholder="password">
+                    <input type="password" placeholder="password" id="pwd">
                     <label for="">再次確認密碼</label>
-                    <input type="password" placeholder="comfirmpassword">
-                    <button>確認修改</button>
+                    <input type="password" placeholder="comfirmpassword" id="newpwd">
+                    <button type="submit">確認修改</button>
                 </form>
             </section>
         </div>
@@ -157,8 +157,33 @@
         const url = location.href
         const mbE = url.split('mbE=')[1]
         console.log(mbE)  //取得用戶mail
-        //進資料庫進行update
 
+        //進資料庫進行update
+        function resetmypwd() {
+
+            fetch('http://localhost:6001/tandem/member/pwdreset', {
+                method: 'POST',
+                //   將input拿到的值組成key:value pair用json包裹發POST
+                body: JSON.stringify({
+                    mbE: mbE,
+                    pwd: document.querySelector('#pwd').value,
+                    newpwd: document.querySelector('#newpwd').value,
+                }),
+                // fetch用json格式較為方便
+                headers: {
+                    'content-type': 'application/json'
+                }
+            })
+                .then(r => r.json())
+                .then(obj => {
+                    console.log(obj)
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+
+
+        }
 
 
 
