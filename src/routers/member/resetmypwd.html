@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TANDEM</title>
     <link href="https://fonts.googleapis.com/css?family=Noto+Sans+TC|Open+Sans&display=swap" rel="stylesheet">
+    <link rel="Shortcut Icon" type="image/x-icon" href="http://localhost:6001/member_img/logo.svg" />
 </head>
 <style>
     * {
@@ -24,6 +25,7 @@
         /* background: yellow; */
         margin: 0 auto;
         margin-top: 5rem;
+        position: relative;
     }
 
     .M-topwrapper {
@@ -121,6 +123,37 @@
         color: white;
         background: #79CEE2;
     }
+
+    button:focus {
+        outline: 0;
+    }
+
+    .M-alertmsg {
+        width: 45rem;
+        height: 30rem;
+        background: url(http://localhost:6001/member_img/alertmsgbg.svg) no-repeat white;
+        background-position: center;
+        position: absolute;
+        left: 5rem;
+        bottom: 5rem;
+    }
+
+    #errormsg {
+        color: brown;
+    }
+
+    .M-alertmsg {
+        text-align: center;
+    }
+
+    .M-alertmsg h4 {
+        line-height: 20rem;
+        font-size: 2rem;
+    }
+
+    .M-alertmsg {
+        display: none;
+    }
 </style>
 
 <body>
@@ -132,12 +165,18 @@
 
         </div>
         <div class="M-middlewrapper">
+            <div class="M-alertmsg">
+                <!-- <img src="http://localhost:6001/member_img/alertmsgbg.svg" alt=""> -->
+                <h4 id="showmsg">1234</h4>
+                <h3>3秒後.....把你帶往Tandem</h3>
+            </div>
             <section class="M-left">
                 <div class="M-imgwrapper">
                     <img src="http://localhost:6001/member_img/resetpwdbg.jpg" alt="">
                 </div>
             </section>
             <section class="M-right">
+                <h3 id="errormsg">1234</h3>
 
                 <h2>請輸入你的密碼進行重置</h2>
                 <form class="M-formgroup" method="POST" onsubmit="resetmypwd(); return false">
@@ -176,7 +215,19 @@
             })
                 .then(r => r.json())
                 .then(obj => {
-                    console.log(obj)
+                    if (obj.success) {
+                        document.querySelector('#showmsg').innerHTML = obj.msg
+                        document.querySelector('.M-alertmsg').style.display = 'block'
+                        setTimeout(() => {
+                            window.location.href = 'http://localhost:3000/'
+                        }, 3000)
+
+                    } else {
+                        document.querySelector('#errormsg').innerHTML = obj.msg
+                        setTimeout(() => {
+                            document.querySelector('#errormsg').innerHTML = ''
+                        }, 3000)
+                    }
                 })
                 .catch(err => {
                     console.log(err)
