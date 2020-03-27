@@ -1,7 +1,7 @@
 module.exports = {
     cookieSecret: 'your cookie secret goes here',
     gmail: {
-      user: 'albertkingdom',
-      pass: 'xup6m4d93albert',
+      user: 'tandem20200401',
+      pass: '0401tandem',
     },
   };
