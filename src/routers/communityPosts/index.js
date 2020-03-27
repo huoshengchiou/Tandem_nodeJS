@@ -4,6 +4,9 @@ const router = express.Router();
 const fs = require('fs');
 const multer =require('multer')
 const path = require('path');
+const moment = require('moment-timezone')
+const dateFormat= 'YYYY-MM-DD';
+
 // const upload = multer({dest: 'tmp_uploads/'});
 
 
@@ -91,30 +94,6 @@ router.post('/uploaditem', upload.single('communityImage'), (req, res)=>{
 });
 
 
-
-
-// ----------------------------------------------------------------------------------------
-//get資料到前端 分類受訓
-router.post('/postCategory', (req,res)=>{
-    console.log(res.body)
-    const category_sql=`SELECT \`posts\`.\`post_id\`,\`posts\`.\`postTitle\`,\`posts\`.\`postContent\`,\`posts\`.\`postImg\`,\`posts\`.\`postTag\`,\`posts\`.\`postLikes\`,\`posts\`.\`postComments\`,\`posts\`.\`updated_at\`,\`mb_info\`.\`mbNick\`,\`mb_info\`.\`mbAva\`,\`mb_info\`.\`mbDes\`,\`mb_info\`.\`mbCountry\`,\`mb_info\`.\`mbId\`,\`posts_category\`.\`pCategory_id\`,\`mb_info\`.\`mbPost\`
-    FROM \`posts\`
-    INNER JOIN \`mb_info\`
-    ON \`posts\`.\`member_id\`=\`mb_info\`.\`mbId\`
-    INNER JOIN \`posts_category\`
-    ON \`posts\`.\`postTag\`=\`posts_category\`.\`pCategory_id\`
-    WHERE \`posts_category\`.\`pCategory_id\` = ? 
-    ORDER BY \`posts\`.\`post_id\` DESC `
-    db.queryAsync(category_sql,[req.body.pCategory_id])
-    .then(r=>{
-        res.json(r)
-    })
-    .catch(error=>{
-        res.send(error)
-        console.log(error)
-    }) 
-})
-
 // ----------------------------------------------------------------------------------------
 //get資料到前端
 router.get('/posts', (req, res)=>{
@@ -122,9 +101,79 @@ router.get('/posts', (req, res)=>{
     FROM \`posts\`
     INNER JOIN \`mb_info\`
     ON \`posts\`.\`member_id\`=\`mb_info\`.\`mbId\`
-    ORDER BY \`posts\`.\`post_id\` DESC `
+    ORDER BY \`posts\`.\`post_id\` DESC`
     
 
+    db.queryAsync(sql)
+
+    .then(result=>{
+        // console.log(result)
+        result.forEach((data)=>{
+            data.updated_at = moment (data.updated_at,'YYYY年MM月DD日').fromNow();
+        })
+     res.json(result)
+
+    })
+    .catch(error=>{
+        console.log(error);
+        res.send(error)
+    })
+
+// ----------------------------------------------------------------------------------------
+//get資料到前端 分類受訓
+router.post('/postCategory', (req,res)=>{
+    console.log(req.body.searchData)
+    if(req.body.pCategory_id){
+        const category_sql=`SELECT \`posts\`.\`post_id\`,\`posts\`.\`postTitle\`,\`posts\`.\`postContent\`,\`posts\`.\`postImg\`,\`posts\`.\`postTag\`,\`posts\`.\`postLikes\`,\`posts\`.\`postComments\`,\`posts\`.\`updated_at\`,\`mb_info\`.\`mbNick\`,\`mb_info\`.\`mbAva\`,\`mb_info\`.\`mbDes\`,\`mb_info\`.\`mbCountry\`,\`mb_info\`.\`mbId\`,\`posts_category\`.\`pCategory_id\`,\`posts_category\`.\`pCategory_id\`,\`mb_info\`.\`mbPost\`
+        FROM \`posts\`
+        INNER JOIN \`mb_info\`
+        ON \`posts\`.\`member_id\`=\`mb_info\`.\`mbId\`
+        INNER JOIN \`posts_category\`
+        ON \`posts\`.\`postTag\`=\`posts_category\`.\`pCategory_id\`
+        WHERE \`posts_category\`.\`pCategory_id\` = ? 
+        ORDER BY \`posts\`.\`post_id\` DESC `
+        db.queryAsync(category_sql,
+            [req.body.pCategory_id],
+            )
+        .then(r=>{
+            res.json(r)
+        })
+        .catch(error=>{
+            res.send(error)
+            console.log(error)
+        })
+    }else if(req.body.searchData){
+            const category_sql=`SELECT \`posts\`.\`post_id\`,\`posts\`.\`postTitle\`,\`posts\`.\`postContent\`,\`posts\`.\`postImg\`,\`posts\`.\`postTag\`,\`posts\`.\`postLikes\`,\`posts\`.\`postComments\`,\`posts\`.\`updated_at\`,\`mb_info\`.\`mbNick\`,\`mb_info\`.\`mbAva\`,\`mb_info\`.\`mbDes\`,\`mb_info\`.\`mbCountry\`,\`mb_info\`.\`mbId\`,\`posts_category\`.\`pCategory_id\`,\`posts_category\`.\`pCategory_id\`,\`mb_info\`.\`mbPost\`
+            FROM \`posts\`
+            INNER JOIN \`mb_info\`
+            ON \`posts\`.\`member_id\`=\`mb_info\`.\`mbId\`
+            INNER JOIN \`posts_category\`
+            ON \`posts\`.\`postTag\`=\`posts_category\`.\`pCategory_id\`
+            WHERE \`posts\`.\`postContent\` LIKE CONCAT('%',?,'%' )
+             ORDER BY \`posts\`.\`post_id\` DESC `
+           
+            
+            db.queryAsync(category_sql,
+                [req.body.searchData,req.body.searchData],
+                )
+           
+            .then(r=>{
+                res.json(r)
+            })
+            .catch(error=>{
+                res.send(error)
+                console.log(error)
+            }) 
+    }  
+})
+
+
+
+
+// ----------------------------------------------------------------------------------------
+//get 會員資料到前端
+router.get('/postsmember', (req, res)=>{
+    const sql = "SELECT * FROM `mb_info` "
     db.queryAsync(sql)
 
     .then(result=>{
@@ -134,8 +183,11 @@ router.get('/posts', (req, res)=>{
     .catch(error=>{
         console.log(error);
         res.send(error)
-    })
+    })    
+})
 
+
+// ----------------------------------------------------------------------------------------
   //刪除貼文
 
 router.post('/delpost', (req, res)=>{
@@ -172,24 +224,24 @@ router.post('/delpost', (req, res)=>{
     });      
 })
 
-           
-    
-   
 // ----------------------------------------------------------------------------------------
-//render all members data for post profile
-
-router.post('/postsMember', (req, res)=>{
-    const sql = "SELECT* FROM `mb_info` WHERE `mbId=?`" 
+  // 編輯貼文
+           
+  router.post('/editpost', (req, res)=>{
+   
     console.log(req.body)
-    db.queryAsync(sql,[req.body.memberID])
-    .then(result=>{
-     return res.json(result)
-    console.log(result)
-    })
-    .catch(error=>{
-        console.log(error);
-        res.send(error)
-    })
-})
+
+    const edit_sql = "UPDATE `posts` SET `postContent`=? WHERE `post_id`=?"
+    db.queryAsync(edit_sql, [req.body.postContent,req.body.postId])
+
+        .then(r=>{
+        console.log(req.body);
+            console.log(r);
+            res.json(r);
+        })
+
+});
+   
+
 
 module.exports = router ;

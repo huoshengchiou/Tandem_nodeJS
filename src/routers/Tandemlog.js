@@ -33,22 +33,34 @@ router.post("/check", (req, res) => {
   //   sql語法建立
   const sql = `SELECT \* FROM \`mb_info\` WHERE \`mbE\`= ? AND \`mbPwd\` = ?`;
 
-  db.queryAsync(sql, [req.body.mbE, req.body.mbPwd]).then(r => {
-    // 撥開RowDataPacket obj拿裡面的東西
-    // console.log(r[0]);
-    // 沒有比對成功的帳號
-    if (!r || !r.length) {
-      FetchSeverResponse.msg = "帳號或密碼錯誤";
-      return res.json(FetchSeverResponse);
-    }
-    //成功之後返回使用者資料，驅動前端進行狀態修改
-    FetchSeverResponse.success = true;
-    FetchSeverResponse.body = r[0];
-    FetchSeverResponse.msg = "登入成功";
+  db.queryAsync(sql, [req.body.mbE, req.body.mbPwd])
+    .then(r => {
+      // 撥開RowDataPacket obj拿裡面的東西
+      // console.log(r[0]);
+      // 沒有比對成功的帳號
+      if (!r || !r.length) {
+        FetchSeverResponse.msg = "帳號或密碼錯誤";
+        return res.json(FetchSeverResponse);
+      }
+      //成功之後返回使用者資料，驅動前端進行狀態修改
+      // FetchSeverResponse.success = true;
+      // 將取得個人資料寄存在回覆中
+      FetchSeverResponse.body = r[0];
+      FetchSeverResponse.msg = "取得資料成功";
 
-    //   -----------------回覆-------------------
-    return res.json(FetchSeverResponse);
-  });
+      // 進行上線設定
+      const sql = `UPDATE \`mb_info\` SET \`mbOn\`=1  WHERE mbE=?`;
+      return db.queryAsync(sql, [req.body.mbE]);
+    })
+    .then(r2 => {
+      if (!r2.affectedRows) {
+        FetchSeverResponse.msg = "上線設定失敗";
+        return res.json(FetchSeverResponse);
+      }
+      FetchSeverResponse.success = true;
+      FetchSeverResponse.msg = "完全登入成功";
+      return res.json(FetchSeverResponse);
+    });
 });
 
 // ---------------------------------------------------------------會員註冊---------------------------------------------
@@ -280,19 +292,22 @@ router.post("/findmygame", (req, res) => {
 });
 
 //------------------會員id找擁有折價券-----------------------
-// router.post("/findmycup", (req, res) => {
-//   const sql = "SELECT mbCup FROM mb_info WHERE mbId=?";
-//   db.queryAsync(sql, [req.body.mbId])
-//     .then(r => {
-//       const arr = JSON.parse(r[0].mbCup);
-//       console.log(typeof arr);
-//       const sql2 = `SELECT \* FROM \`sales\` WHERE \`sId\`IN ?`;
-//       return db.queryAsync(sql2, [arr]);
-//     })
-//     .then(r2 => {
-//       return res.json(r2);
-//     });
-// });
+router.post("/findmycup", (req, res) => {
+  const sql = "SELECT mbCup FROM mb_info WHERE mbId=?";
+  db.queryAsync(sql, [req.body.mbId])
+    .then(r => {
+      // const arr = JSON.parse(r[0].mbCup);
+      // console.log(typeof arr);
+
+      const oristring = r[0].mbCup;
+      const arr = oristring.split(",");
+      const sql2 = `SELECT \* FROM \`sales\` WHERE \`sId\`IN (?)`;
+      return db.queryAsync(sql2, [arr]);
+    })
+    .then(r2 => {
+      return res.json(r2);
+    });
+});
 //------------從會員id尋找好友推文----------先寫成功搜尋之後補失敗搜尋處理
 router.post("/findmyFpost", (req, res) => {
   const sql = "SELECT mbFd FROM mb_info WHERE mbId=?";
@@ -342,14 +357,11 @@ router.post("/invate", (req, res) => {
     body: req.body,
     msg: ""
   };
- 
   if (!req.body) {
     FetchSeverResponse.msg = "缺少申請資料";
     return res.json(FetchSeverResponse);
   }
   const sql = `SELECT \* FROM \`mb_info\` WHERE \`mbId\`=?`;
-  console.log(req.body)
-
   db.queryAsync(sql, [req.body.mbId])
     .then(r => {
       const inviteUserData = r[0];
@@ -366,6 +378,13 @@ router.post("/invate", (req, res) => {
       }
     });
 });
+// 檢索申請好友事件_old
+// router.post("/confirmfriend", (req, res) => {
+//   const sql = `SELECT \`invatembId\`, \`inviteuserData\` FROM \`add_friend\` WHERE \`addmbId\` = ${req.body.mbId}`;
+//   db.queryAsync(sql).then(r => {
+//     return res.json(r);
+//   });
+// });
 // 檢索申請好友事件  //修正
 router.post("/confirmfriend", (req, res) => {
   const FetchSeverResponse = {
@@ -389,9 +408,10 @@ router.post("/confirmfriend", (req, res) => {
     .catch(err => {
       FetchSeverResponse.body = err;
       FetchSeverResponse.msg = "沒有檢索資料";
-      return res.json();
+      return res.json(FetchSeverResponse);
     });
 });
+
 //成立好友
 router.post("/iamufriend", (req, res) => {
   const FetchSeverResponse = {
@@ -449,10 +469,15 @@ router.post("/iamufriend", (req, res) => {
         (FetchSeverResponse.msg = "已經成為好友囉");
       FetchSeverResponse.body = r5;
       return res.json(FetchSeverResponse);
+    })
+    .catch(err => {
+      FetchSeverResponse.msg = "成為好友的過程失敗了";
+      FetchSeverResponse.body = err;
+      return res.json(FetchSeverResponse);
     });
 });
 
-// 從mbId與對方Id刪除好友
+// 從mbId與對方Id刪除好友---------------------
 router.post("/killfriend", (req, res) => {
   const FetchSeverResponse = {
     success: false,
@@ -479,8 +504,122 @@ router.post("/killfriend", (req, res) => {
         FetchSeverResponse.body = r2;
         return res.json(FetchSeverResponse);
       }
+      // FetchSeverResponse.success = true;
+      // FetchSeverResponse.msg = "刪除好友成功";
+      // return res.json(FetchSeverResponse);
+      // 成功後把好友資訊再搜尋一次結果給前端更新畫面
+      const sql = "SELECT mbFd FROM mb_info WHERE mbId=?";
+      return db.queryAsync(sql, [req.body.mbId]);
+    })
+    .then(r3 => {
+      const arr = JSON.parse(r3[0].mbFd);
+      //用obj裝進sql語法
+      const sql = `SELECT \* FROM \`mb_info\` WHERE \`mbId\`IN (${arr})`;
+      return db.queryAsync(sql);
+    })
+    .then(r4 => {
+      return res.json(r4);
+      //會員朋友陣列資料
+    })
+    .catch(err => {
+      return res.json(err);
+    });
+});
+
+//登入後取得用戶頭像
+
+router.post("/findmyhomeava", (req, res) => {
+  const FetchSeverResponse = {
+    success: false,
+    body: req.body,
+    msg: ""
+  };
+  const sql = "SELECT mbAva FROM mb_info WHERE mbId=?";
+  db.queryAsync(sql, [req.body.mbId])
+    .then(r => {
+      if (!r.length) {
+        FetchSeverResponse.msg = "資料庫取得頭像失敗";
+        return res.json(FetchSeverResponse);
+      }
       FetchSeverResponse.success = true;
-      FetchSeverResponse.msg = "刪除好友成功";
+      //只會有單筆     obj{obj}
+      FetchSeverResponse.body = r[0];
+      FetchSeverResponse.msg = "取得個人頭像";
+      return res.json(FetchSeverResponse);
+    })
+    .catch(err => {
+      FetchSeverResponse.msg = "搜尋頭像失敗";
+      FetchSeverResponse.body = err;
+      return res.json(FetchSeverResponse);
+    });
+});
+
+// 登出後歸零上線狀態
+router.post("/logout", (req, res) => {
+  const FetchSeverResponse = {
+    success: false,
+    body: req.body,
+    msg: ""
+  };
+  const sql = `UPDATE \`mb_info\` SET \`mbOn\`=0  WHERE mbId=?`;
+  db.queryAsync(sql, [req.body.mbId])
+    .then(r => {
+      if (!r.affectedRows) {
+        FetchSeverResponse.msg = "登出設定失敗";
+        return res.json(FetchSeverResponse);
+      }
+      FetchSeverResponse.success = true;
+      FetchSeverResponse.body = r;
+      FetchSeverResponse.msg = "登出設定成功";
+      return res.json(FetchSeverResponse);
+    })
+    .catch(err => {
+      FetchSeverResponse.msg = "登出設定失敗";
+      FetchSeverResponse.body = err;
+      return res.json(FetchSeverResponse);
+    });
+});
+
+// 將密碼重置需求進行導頁
+
+router.get("/redirectpwdset", (req, res) => {
+  res.sendFile(__dirname + "/member/resetmypwd.html");
+});
+
+router.post("/pwdreset", (req, res) => {
+  // 接收資料形式
+  // mbE:
+  // pwd:
+  // newpwd:
+  const FetchSeverResponse = {
+    success: false,
+    body: req.body,
+    msg: ""
+  };
+  // 用戶信箱存在檢驗
+  if (!req.body.mbE) {
+    FetchSeverResponse.msg = "用戶郵件錯誤";
+    return res.json(FetchSeverResponse);
+  }
+  //密碼格式檢驗
+  if (!req.body.pwd || !req.body.newpwd || req.body.pwd !== req.body.newpwd) {
+    FetchSeverResponse.msg = "輸入密碼不正確";
+    return res.json(FetchSeverResponse);
+  }
+  const sql = `UPDATE \`mb_info\` SET \`mbPwd\`=? WHERE \`mbE\`=?`;
+  db.queryAsync(sql, [req.body.newpwd, req.body.mbE])
+    .then(r => {
+      if (!r.affectedRows) {
+        FetchSeverResponse.msg = "密碼修改失敗";
+        return res.json(FetchSeverResponse);
+      }
+      FetchSeverResponse.success = true;
+      FetchSeverResponse.msg = "密碼修改成功，將為你導向光明彼方";
+      return res.json(FetchSeverResponse);
+    })
+    .catch(err => {
+      FetchSeverResponse.msg = "密碼修改發生錯誤";
+      FetchSeverResponse.body = err;
       return res.json(FetchSeverResponse);
     });
 });
