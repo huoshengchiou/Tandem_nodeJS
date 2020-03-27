@@ -624,4 +624,12 @@ router.post("/pwdreset", (req, res) => {
     });
 });
 
+//送前端arr測試
+router.post("/testarr", (req, res) => {
+  const sql = "SELECT mbFd FROM mb_info WHERE mbId=?";
+  db.queryAsync(sql, [req.body.mbId]).then(r => {
+    const arr = JSON.parse(r[0].mbFd);
+    return res.json(r);
+  });
+});
 module.exports = router;
