@@ -109,6 +109,7 @@ app.use("/items", require(__dirname + "/routers/communityPosts"));
 
 app.use("/postComment", require(__dirname + "/routers/postComment"));
 
+app.use("/community", require('./routers/addfriend'));
 // -----------------------community-----------------------end----------------------------------
 
 // ----------論壇---article-----start------------------
