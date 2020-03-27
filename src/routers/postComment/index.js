@@ -21,7 +21,10 @@ router.get('/comments', (req, res)=>{
     db.queryAsync(sql)
 
     .then(result=>{
-     res.json(result)
+        result.forEach((data)=>{
+            data.updated_at = moment (data.updated_at,'YYYY年MM月DD日').fromNow();
+        })
+        res.json(result)
 
     })
     .catch(error=>{
@@ -96,7 +99,6 @@ router.post('/delpostComment', (req, res)=>{
 
 
         .then(r=>{
-
             console.log(r);
             res.json(r);
         })

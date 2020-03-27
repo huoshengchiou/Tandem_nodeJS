@@ -6,9 +6,8 @@ const db = mysql.createConnection({
   user: "root",
   password: "",
   database: "tandem",
-
   // for MAC PC USE
-  socketPath: "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock"
+  // socketPath: "/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock"
 });
 db.on("error", event => {
   console.log(event);
