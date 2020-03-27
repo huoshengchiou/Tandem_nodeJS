@@ -580,8 +580,49 @@ router.post("/logout", (req, res) => {
     });
 });
 
+// 將密碼重置需求進行導頁
+
 router.get("/redirectpwdset", (req, res) => {
   res.sendFile(__dirname + "/member/resetmypwd.html");
+});
+
+router.post("/pwdreset", (req, res) => {
+  // 接收資料形式
+  // mbE:
+  // pwd:
+  // newpwd:
+  const FetchSeverResponse = {
+    success: false,
+    body: req.body,
+    msg: ""
+  };
+  // 用戶信箱存在檢驗
+  if (!req.body.mbE) {
+    FetchSeverResponse.msg = "用戶郵件錯誤";
+    return res.json(FetchSeverResponse);
+  }
+  //密碼格式檢驗
+  if (!req.body.pwd || !req.body.newpwd || req.body.pwd !== req.body.newpwd) {
+    FetchSeverResponse.msg = "輸入密碼不正確";
+    return res.json(FetchSeverResponse);
+  }
+  const sql = `UPDATE \`mb_info\` SET \`mbPwd\`=? WHERE \`mbE\`=?`;
+  db.queryAsync(sql, [req.body.newpwd, req.body.mbE])
+    .then(r => {
+      if (!r.affectedRows) {
+        FetchSeverResponse.msg = "密碼修改失敗";
+        return res.json(FetchSeverResponse);
+      }
+      FetchSeverResponse.success = true;
+      FetchSeverResponse.msg = "密碼修改成功，將為你導向光明彼方";
+      return res.json(FetchSeverResponse);
+    })
+    .catch(err => {
+      FetchSeverResponse.msg = "密碼修改發生錯誤";
+      return res.json(FetchSeverResponse);
+    });
+
+  return res.json(req.body);
 });
 
 module.exports = router;
