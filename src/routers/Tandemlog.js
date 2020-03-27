@@ -619,10 +619,9 @@ router.post("/pwdreset", (req, res) => {
     })
     .catch(err => {
       FetchSeverResponse.msg = "密碼修改發生錯誤";
+      FetchSeverResponse.body = err;
       return res.json(FetchSeverResponse);
     });
-
-  return res.json(req.body);
 });
 
 module.exports = router;
