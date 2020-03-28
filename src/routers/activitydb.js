@@ -54,12 +54,12 @@ router.post('/addNewAc', upload.single('aKV'), (req, res) => {
     .then(result => {
       //為發送email提取關鍵資料
       let mbId = req.body.aMId;
-      let acName = req.body.aName;
-      let acDate = req.body.aDate;
       const mbEsql = "SELECT `mbName`, `mbE` FROM `mb_info` WHERE `mbId` = ?"
       return db.queryAsync(mbEsql, [mbId])
     })
     .then(mbData => {
+      const acName = req.body.aName;
+      const acDate = req.body.aDate;
       //準備開啟帳號發送創辦活動成功通知
       async function mail() {
         let mbE = mbData[0].mbE;
@@ -95,6 +95,7 @@ router.post('/addNewAc', upload.single('aKV'), (req, res) => {
 
 // 新增留言
 router.post('/activitycontentpage/:Id?', (req, res) => {
+  console.log(req)
   //準備sql，將post取得資料繫結並執行
   const commentSql = "INSERT INTO `acomment` (`MId`, `aComment`, `aId`) VALUES (?,?,?)"
   db.queryAsync(commentSql, [
@@ -104,7 +105,7 @@ router.post('/activitycontentpage/:Id?', (req, res) => {
   ])
     .then(commentresult => {
       res.json(commentresult)
-      console.log('commentresult', commentresult)
+      // console.log('commentresult', commentresult)
     })
     .catch(error => {
       res.json(error)
@@ -119,7 +120,7 @@ router.get('/mbCalendar/:mId', (req, res) => {
   db.queryAsync(mCalenSql, [req.params.mId])
     .then(result => {
       const mActivityArr = JSON.parse(result[0].mbactivityBook)
-      console.log(mActivityArr)
+      // console.log(mActivityArr)
       const activityDateSql = "SELECT `aDate` FROM `activity` WHERE `aId` IN (?)"
       return db.queryAsync(activityDateSql, [mActivityArr])
     })
@@ -129,7 +130,7 @@ router.get('/mbCalendar/:mId', (req, res) => {
         mbJoinAcArr.push(ad.aDate)
       });
       res.json(mbJoinAcArr)
-      console.log(mbJoinAcArr)
+      // console.log(mbJoinAcArr)
     })
 })
 
@@ -180,13 +181,13 @@ router.get('/hotTopThree', (req, res) => {
           break;
         }
       }
-      console.log(topThreeAc)
+      // console.log(topThreeAc)
       // 撈出三筆資料需求的欄位送至前端
       const topThreeSql = `SELECT \`aId\` , \`aName\` , \`aKV\` FROM \`activity\` WHERE \`aId\` IN (${topThreeAc})`
       return db.queryAsync(topThreeSql)
     })
     .then(threeRes => {
-      console.log(threeRes)
+      // console.log(threeRes)
       res.json(threeRes)
     })
 })
@@ -222,14 +223,14 @@ router.get('/getComment/:aId?', (req, res) => {
   const commentInfoSql = "SELECT `mb_info`.`mbName` , `mb_info`.`mbAva` , `aComment`.`created_at` , `aComment`.`aComment` , `aComment`.`aId` FROM `aComment` INNER JOIN `mb_info` ON `aComment`.`MId` = `mb_info`.`mbId` WHERE `aComment`.`aId` = ? ORDER BY `aComment`.`created_at` DESC"
   db.queryAsync(commentInfoSql, [req.params.aId])
     .then(commentInfo => {
-      console.log('length', commentInfo.length)
+      // console.log('length', commentInfo.length)
       if (!commentInfo || !commentInfo.length) {
         res.send('noData')
       } else {
         commentInfo.forEach((data) => {
           data.created_at = moment(data.created_at).format(dateFormat);
         });
-        console.log('commentInfo', commentInfo)
+        // console.log('commentInfo', commentInfo)
         res.json(commentInfo)
       }
     })
