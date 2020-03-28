@@ -114,7 +114,7 @@
         padding: 6px 8px;
         /* border: 0; */
         border: 1px solid #79CEE2;
-        font-size: 1.5rem;
+        font-size: 1rem;
         font-weight: 700;
         color: #79CEE2;
         cursor: pointer;
@@ -130,30 +130,26 @@
     }
 
     .M-alertmsg {
-        width: 45rem;
+        width: 52rem;
         height: 30rem;
         background: url(http://localhost:6001/member_img/alertmsgbg.svg) no-repeat white;
         background-position: center;
         position: absolute;
         left: 5rem;
         bottom: 5rem;
+        text-align: center;
+        display: none;
     }
 
     #errormsg {
         color: brown;
     }
 
-    .M-alertmsg {
-        text-align: center;
-    }
+
 
     .M-alertmsg h4 {
         line-height: 20rem;
         font-size: 2rem;
-    }
-
-    .M-alertmsg {
-        display: none;
     }
 </style>
 
@@ -168,7 +164,7 @@
         <div class="M-middlewrapper">
             <div class="M-alertmsg">
                 <!-- <img src="http://localhost:6001/member_img/alertmsgbg.svg" alt=""> -->
-                <h4 id="showmsg">1234</h4>
+                <h4 id="showmsg"></h4>
                 <h3>3秒後.....把你帶往Tandem</h3>
             </div>
             <section class="M-left">
