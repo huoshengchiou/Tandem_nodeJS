@@ -232,6 +232,27 @@ router.post("/changeavatar", (req, res) => {
       return res.json(err);
     });
 });
+
+// -----------------由會員個人id到朋友會員資料(加好友)---------
+router.post("/findfriend",(req,res)=>{
+  const sql = "SELECT mbFd FROM mb_info WHERE mbId=?";
+  db.queryAsync(sql, [req.body.loginUserId])
+  .then(r=>{
+     // 把string用JSON轉回來變obj
+      // console.log(JSON.parse(r[0].mbFd));
+      const arr = JSON.parse(r[0].mbFd);
+      console.log(arr)
+      //用obj裝進sql語法
+      const sql2 = `SELECT \* FROM \`mb_info\` WHERE \`mbId\`IN (${arr})`;
+      return db.queryAsync(sql2);
+  }) .then(r2 => {
+    return res.json(r2);
+    //會員朋友陣列資料
+  })
+  .catch(err => {
+    return res.json(err);
+  });
+})
 // -----------------由會員個人id到朋友會員資料---------
 router.post("/findfriendinfo", (req, res) => {
   const sql = "SELECT mbFd FROM mb_info WHERE mbId=?";
