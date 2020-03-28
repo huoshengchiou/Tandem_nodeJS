@@ -6,23 +6,29 @@ const dateFormat ="YYYY-MM-DD";
 const url = require('url');
 
 //新增文章
-router.post('/addNewArticle', (req, res) => {
+router.post('/articlepost', (req, res) => {
+
+    const output={
+        success:false,
+        result:{}
+    }
     console.log(req.body)
-    const inserSql = "INSERT INTO `articles` ( `articleAuthor` , `articleName` , `articleCategoryId` , `articleClassId` , `articleContent` , `articleImage`  ) VALUES (?,?,?,?,?,?)";
-    db.queryAsync(inserSql, [
-        req.body.localUserData.mbId,
+    const sql = `INSERT INTO \`articles\` ( \`articleAuthor\` , \`articleName\` , \`articleCategoryId\` , \`articleClassId\` , \`articleContent\` , \`created_at\`  ) VALUES (?,?,?,?,?,NOW())`;
+    db.queryAsync(sql, [
+        req.body.mbId,
         req.body.articleName,
         req.body.articleCategoryId,
         req.body.articleClassId,
         req.body.articleContent,
-        [],
     ])
         .then(r => {
             console.log('result:', r)
-            res.json(r)
+            output.success=true;
+            output.result=r
+            return res.json(output)
         })
         .catch(error => {
-            res.json(error)
+            return res.json(output)
             console.log(error)
         })
 })
