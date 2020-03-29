@@ -85,6 +85,13 @@ router.post("/reg", (req, res) => {
     return res.json(FetchSeverResponse);
   }
 
+  //二次密碼驗證
+
+  if (req.body.mbPwd !== req.body.mbPwd2) {
+    FetchSeverResponse.msg = "重複密碼驗證失敗";
+    return res.json(FetchSeverResponse);
+  }
+
   // ------------------------------資料庫檢索區塊---------------------------
   // 找尋是否有重複的帳號
   const s_sql = "SELECT * FROM mb_info WHERE mbE=?";
