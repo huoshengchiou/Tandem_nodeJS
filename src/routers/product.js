@@ -329,6 +329,43 @@ router.post("/addtolike/", (req, res) => {
       console.log("最後memberFavorId結果", r2);
     });
 });
+
+router.post("/unAzen",(req,res)=>{
+  let unazenId,newazenId,newarr;
+  const getlikeId = "SELECT `mbAzen` FROM `mb_info` WHERE `mbId`=?";
+  const addtolike = "UPDATE `mb_info` SET `mbAzen` =? WHERE `mbId` = ?";
+  const getmbidfromitem =
+    "SELECT `memberFavoriteId` FROM `items` WHERE `itemId` =?";
+  const addmbidtoitem =
+    "UPDATE `items` SET `memberFavoriteId`=? WHERE `itemId`=?";
+  db.queryAsync(getlikeId,[req.body.userId])
+    .then(result=>{
+      unazenId = result[0].mbAzen;
+      unazenId = JSON.parse(unazenId);
+      if(unazenId.indexOf(req.body.unlikeproductId) !== -1){
+        newazenId = unazenId.filter(id=>id!==req.body.unlikeproductId)
+      }
+
+      azenId_string = JSON.stringify(newazenId);
+      return db.queryAsync(addtolike, [azenId_string, req.body.userId]);
+    })
+    .then(r=>{
+      res.json({ r });
+      return db.queryAsync(getmbidfromitem, [req.body.unlikeproductId]);
+    })
+    .then(r1 => {
+      console.log(r1);
+
+      let arr = JSON.parse(r1[0].memberFavoriteId);
+      console.log(arr);
+      if (arr.indexOf(req.body.userId) !== -1) {
+        newarr = arr.filter(id=>id!==req.body.userId);
+      }
+      // console.log(arr)
+      arr_string = JSON.stringify(newarr);
+      return db.queryAsync(addmbidtoitem, [arr_string, req.body.unlikeproductId]);
+    })
+})
 //抓COUPON圖片
 router.post("/getCoupon", (req, res) => {
   console.log("req.body.sId", req.body.sId);
