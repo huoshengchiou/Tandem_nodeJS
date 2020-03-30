@@ -33,18 +33,7 @@ router.post('/articlepost', (req, res) => {
         })
 })
 
-//取forum全資料
-router.get("/", function(req, res){
-    const sql = `SELECT * FROM articles`;
-    db.queryAsync(sql).then(result =>{
-        result.forEach((row, idx) => {
-            row.created_at = moment(row.created_at).format(dateFormat);
-            row.updated_at = moment(row.updated_at).format(dateFormat);
-        }) 
-    console.log(result)
-     res.json(result);
-})
-})
+
 //取熱門文章4筆
 router.get("/hot", function(req, res){
     const sql = `SELECT * FROM articles ORDER BY updated_at DESC LIMIT 4 ;`;
@@ -54,52 +43,36 @@ router.get("/hot", function(req, res){
     })
 })
 
-//Read每頁顯示幾筆資料
-router.get('/list/:page?',(req,res)=>{
-    const perPage = 18;//每頁幾筆
+//文章列表分頁
+router.get('/forum/:page?', (req, res) => {
+    const perPage = 10;
     let totalRows, totalPages;
-    let page = req.params.page ? parseInt(req.params.page):1;//沒有設定頁數就第1頁
-    const t_sql = "SELECT COUNT(1) AS num FROM `items`";
+    let page = req.params.page ? parseInt(req.params.page) : 1;
+    const totalSql = "SELECT COUNT(1) num FROM `articles`";
+    db.queryAsync(totalSql)
+        .then(result => {
+            totalRows = result[0].num;
+            totalPages = Math.ceil(totalRows / perPage)
 
-    db.queryAsync(t_sql)
-        .then(result=>{
-            totalRows = result[0].num;//總筆數
-            totalPages = Math.ceil(totalRows/perPage);
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
 
-            //限定page範圍
-            if(page<1) page=1;
-            if(page>totalPages) page=totalPages;
+            const infoSql = `SELECT * FROM articles LIMIT ${(page - 1) * perPage}, ${perPage}`;
 
-            const sql = `SELECT * FROM articles LIMIT ${(page-1)*perPage},${perPage}`;
-            return db.queryAsync(sql);
+            return db.queryAsync(infoSql)
         })
-        .then(result=>{
-       
-            result.forEach((row,idx)=>{
-                row.itemDate = moment(row.itemDate).format(dateFormat);
-            })
-            // res.send(result)//check sql語法查詢到的結果
-            // res.render('product-list/list',{
-            //     totalRows,
-            //     totalPages,
-            //     page,
-            //     rows:result
-            // });
-            //api(輸出json格式)
-            res.json({
-                totalRows,
-                totalPages,
-                page,
-                rows:result
-            });
-        })
-});
+        // .then(result => {
+        //     result.forEach((bd) => {
+        //         bd.birthday = moment(bd.birthday).format(dateFormat);
+        //     });
 
-//文章ID
-router.get("/:articleId?", function(req, res){
-    const sql =`SELECT * FROM articles WHERE articleId = ?`
-    console.log(req.params.articleId)
-    db.queryAsync(sql, [req.params.articleId]).then(result=>{return res.json(result)})
+        //     res.render('address_book/list', {
+        //         totalRows,
+        //         totalPages,
+        //         page,
+        //         rows: result
+        //     })
+        // })
 })
 
 //刪除資料
@@ -113,14 +86,75 @@ router.post('/del/:ArticleId', (req, res)=>{
 });
 
 
-//取comment全資料
-router.get("/:articleId?", function(req, res){
-    const sql = `SELECT * FROM article_comments WHERE articleId = ?`;
-    console.log(req.params.articleId)
-    db.queryAsync(sql, [req.params.articleId]).then(result=>{return res.json(result)})
+//取得文章下面的留言
+router.get("/article_comments/:articleId", (req, res) => {
+    console.log('req',req)
+    let articleId = req.params.articleId;
+    // const sql = `SELECT * FROM shop_comments WHERE itemId =${productId}`;
+    const sql = `SELECT * FROM article_comments INNER JOIN mb_info ON article_comments.mbId = mb_info.mbId WHERE articleId =${articleId}`;
+    db.queryAsync(sql).then(result => {
+      result.forEach((row, idx) => {
+        row.created_at = moment(row.created_at).format(dateFormat);
+      });
+      res.json(
+        result
+      );
+    });
+  });
+  //發表對文章的留言
+  router.post("/article_comments/", (req, res) => {
+    let articleId = req.params.articleId;
+    const sql = `INSERT INTO article_comments (\`content\`,\`articleId\`,\`mbId\`) 
+      VALUES (?,?,?)`;
+    db.queryAsync(sql, [
+      req.body.content,
+      req.body.articleId,
+      req.body.mbId
+    ]).then(result => {
+      res.json({
+        result
+      });
+    });
+  });
+
+//文章ID
+router.get("/article/:articleId", function(req, res){
+    let articleId = req.params.articleId;
+    const sql =`SELECT * FROM articles INNER JOIN mb_info ON articles.articleAuthor = mb_info.mbId WHERE articleId = ? `
+    // console.log(req.params.articleId)
+    db.queryAsync(sql, [req.params.articleId]).then(result=>{
+        result[0].created_at = moment(result[0].created_at).format(dateFormat);
+        result[0].updated_at = moment(result[0].updated_at).format(dateFormat);
+        // console.log('result',result[0].mbName)
+        return res.json(result[0])
+})
 })
 
+//取相關文章資料
+// router.get("/:articleId", function(req, res){
+//     const sql = `SELECT * FROM articles`;
+//     db.queryAsync(sql).then(result =>{
+//         result.forEach((row, idx) => {
+//             row.created_at = moment(row.created_at).format(dateFormat);
+//             row.updated_at = moment(row.updated_at).format(dateFormat);
+//         }) 
+//     console.log(result)
+//      res.json(result);
+// })
+// })
 
+//取forum全資料
+router.get("/", function(req, res){
+    const sql = `SELECT * FROM articles INNER JOIN mb_info ON articles.articleAuthor = mb_info.mbId WHERE articleId ORDER BY updated_at DESC`;
+    db.queryAsync(sql).then(result =>{
+        result.forEach((row, idx) => {
+            row.created_at = moment(row.created_at).format(dateFormat);
+            row.updated_at = moment(row.updated_at).format(dateFormat);
+        }) 
+    console.log(result)
+     res.json(result);
+})
+})
 //partner資料
 // router.get("knowledge/partner", function(req, res){
 //     const sql = `SELECT * FROM knowledge_partners`;
