@@ -5,7 +5,22 @@ const moment = require("moment-timezone");
 const dateFormat ="YYYY-MM-DD";
 const url = require('url');
 
+// ----------------------------------------------------------------------------------------
+//移除收藏
 
+router.post('/delpostCollection', (req, res)=>{
+    console.log(req.body);
+
+    const del_sql = "DELETE FROM `post_collection` WHERE `postCollection_id`=?";
+    db.queryAsync(del_sql, [req.body.postCommentId])
+
+
+        .then(r=>{
+            console.log(r);
+            res.json(r);
+        })
+
+});
 //貼文收藏
 router.post('/postCollection', (req, res) => {
     console.log(req.body)
