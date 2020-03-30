@@ -632,7 +632,7 @@ router.post("/pwdreset", (req, res) => {
   }
   //密碼格式檢驗
   if (!req.body.pwd || !req.body.newpwd || req.body.pwd !== req.body.newpwd) {
-    FetchSeverResponse.msg = "輸入密碼不正確";
+    FetchSeverResponse.msg = "重複密碼驗證失敗";
     return res.json(FetchSeverResponse);
   }
   const sql = `UPDATE \`mb_info\` SET \`mbPwd\`=? WHERE \`mbE\`=?`;
