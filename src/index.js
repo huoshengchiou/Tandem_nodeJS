@@ -35,7 +35,7 @@ const whitelist = [
   "http://localhost:3000",
   "http://127.0.0.1:5500",
   "http://localhost:63342",
-  "http://localhost:3000",
+  "http://localhost:3001",
   "http://localhost:5500",
   // domain是認字串，不同就是不同台主機
   "http://127.0.0.1:5500",
@@ -44,7 +44,7 @@ const whitelist = [
 
 const corsOptions = {
   credentials: true,
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true); //允許
     } else {
@@ -110,6 +110,8 @@ app.use("/items", require(__dirname + "/routers/communityPosts"));
 app.use("/postComment", require(__dirname + "/routers/postComment"));
 
 app.use("/community", require('./routers/addfriend'));
+app.use("/posts", require('./routers/postCollection'));
+
 // -----------------------community-----------------------end----------------------------------
 
 // ----------論壇---article-----start------------------
