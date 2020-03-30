@@ -395,7 +395,7 @@ router.post("/confirmOrderEmail", (req, res) => {
   console.log(name);
   const mailOptions = {
     from: "tandem20200401@gmail.com",
-    to: "albertkingdom@gmail.com",
+    to: "tandem20200401@gmail.com",
     subject: "Tandem訂單成立通知",
     text: "Hello",
     html: `<h2>您的訂單詳細內容如下</h2>
