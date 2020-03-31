@@ -65,7 +65,7 @@ router.post("/uploaditem", upload.single("communityImage"), (req, res) => {
       return res.json(output);
     })
     .catch(error => {
-      console.log(error);
+      // console.log(error);
       return res.json(output);
     });
 
@@ -106,14 +106,14 @@ router.get("/posts", (req, res) => {
       res.json(result);
     })
     .catch(error => {
-      console.log(error);
+      // console.log(error);
       res.send(error);
     });
 
   // ----------------------------------------------------------------------------------------
   //get資料到前端 分類受訓
   router.post("/postCategory", (req, res) => {
-    console.log(req.body.searchData);
+    // console.log(req.body.searchData);
     if (req.body.pCategory_id) {
       const category_sql = `SELECT \`posts\`.\`post_id\`,\`posts\`.\`postTitle\`,\`posts\`.\`postContent\`,\`posts\`.\`postImg\`,\`posts\`.\`postTag\`,\`posts\`.\`postLikes\`,\`posts\`.\`postComments\`,\`posts\`.\`updated_at\`,\`mb_info\`.\`mbNick\`,\`mb_info\`.\`mbAva\`,\`mb_info\`.\`mbDes\`,\`mb_info\`.\`mbCountry\`,\`mb_info\`.\`mbId\`,\`posts_category\`.\`pCategory_id\`,\`posts_category\`.\`pCategory_id\`,\`mb_info\`.\`mbPost\`
         FROM \`posts\`
@@ -129,7 +129,7 @@ router.get("/posts", (req, res) => {
         })
         .catch(error => {
           res.send(error);
-          console.log(error);
+          // console.log(error);
         });
     } else if (req.body.searchData) {
       const category_sql = `SELECT \`posts\`.\`post_id\`,\`posts\`.\`postTitle\`,\`posts\`.\`postContent\`,\`posts\`.\`postImg\`,\`posts\`.\`postTag\`,\`posts\`.\`postLikes\`,\`posts\`.\`postComments\`,\`posts\`.\`updated_at\`,\`mb_info\`.\`mbNick\`,\`mb_info\`.\`mbAva\`,\`mb_info\`.\`mbDes\`,\`mb_info\`.\`mbCountry\`,\`mb_info\`.\`mbId\`,\`posts_category\`.\`pCategory_id\`,\`posts_category\`.\`pCategory_id\`,\`mb_info\`.\`mbPost\`
@@ -148,7 +148,7 @@ router.get("/posts", (req, res) => {
         })
         .catch(error => {
           res.send(error);
-          console.log(error);
+          // console.log(error);
         });
     }
   });
@@ -163,7 +163,7 @@ router.get("/posts", (req, res) => {
         res.json(result);
       })
       .catch(error => {
-        console.log(error);
+        // console.log(error);
         res.send(error);
       });
   });
@@ -175,8 +175,8 @@ router.get("/posts", (req, res) => {
     const del_sql = "DELETE FROM `posts` WHERE `post_id`=?";
     db.queryAsync(del_sql, [req.body.postId]).then(r => {
       res.json(r);
-      console.log(r);
-      console.log(req.body);
+      // console.log(r);
+      // console.log(req.body);
       // fs.unlink(req.body.postImg, error=>{
       //     res.json(error);
     });
@@ -184,11 +184,11 @@ router.get("/posts", (req, res) => {
     const memberPostarr = "SELECT mbPost FROM mb_info WHERE mbId=?";
     db.queryAsync(memberPostarr, [req.body.memberID])
       .then(r => {
-        console.log(r);
+        // console.log(r);
         const oriarr = JSON.parse(r[0].mbPost);
         // 取出尋找值的位置
         let index = oriarr.indexOf(req.body.postId);
-        console.log(index);
+        // console.log(index);
         // 進行arr處理
         oriarr.splice(index, 1);
         const transJSON = JSON.stringify(oriarr);
@@ -196,7 +196,7 @@ router.get("/posts", (req, res) => {
         return db.queryAsync(update_member, [transJSON, req.body.memberID]);
       })
       .catch(error => {
-        console.log(error);
+        // console.log(error);
         res.send(error);
       });
   });
@@ -206,12 +206,12 @@ router.get("/posts", (req, res) => {
 // 編輯貼文
 
 router.post("/editpost", (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
 
   const edit_sql = "UPDATE `posts` SET `postContent`=? WHERE `post_id`=?";
   db.queryAsync(edit_sql, [req.body.postContent, req.body.postId]).then(r => {
-    console.log(req.body);
-    console.log(r);
+    // console.log(req.body);
+    // console.log(r);
     res.json(r);
   });
 });
