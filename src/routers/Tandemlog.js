@@ -136,7 +136,7 @@ router.post("/reg", (req, res) => {
     })
 
     .catch(err => {
-      console.log("資料庫搜索失敗");
+      // console.log("資料庫搜索失敗");
       FetchSeverResponse.msg = "資料庫檢索錯誤";
       FetchSeverResponse.body = err;
       return res.json(FetchSeverResponse);
@@ -248,7 +248,7 @@ router.post("/findfriend", (req, res) => {
       // 把string用JSON轉回來變obj
       // console.log(JSON.parse(r[0].mbFd));
       const arr = JSON.parse(r[0].mbFd);
-      console.log(arr);
+      // console.log(arr);
       //用obj裝進sql語法
       const sql2 = `SELECT \* FROM \`mb_info\` WHERE \`mbId\`IN (${arr})`;
       return db.queryAsync(sql2);
