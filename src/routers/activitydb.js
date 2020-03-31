@@ -6,7 +6,7 @@ const nodemailer = require("nodemailer");
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, 'public/activity_uploads');
+      cb(null, 'public/activity_img');
     }
   })
 });
