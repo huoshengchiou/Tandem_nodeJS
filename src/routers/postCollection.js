@@ -5,23 +5,38 @@ const moment = require("moment-timezone");
 const dateFormat ="YYYY-MM-DD";
 const url = require('url');
 
+// ----------------------------------------------------------------------------------------
+//移除收藏
 
+router.post('/delpostCollection', (req, res)=>{
+    // console.log(req.body);
+
+    const del_sql = "DELETE FROM `post_collection` WHERE `postCollection_id`=?";
+    db.queryAsync(del_sql, [req.body.postCommentId])
+
+
+        .then(r=>{
+            // console.log(r);
+            res.json(r);
+        })
+
+});
 //貼文收藏
 router.post('/postCollection', (req, res) => {
-    console.log(req.body)
+    // console.log(req.body)
     const inserSql = "INSERT INTO `post_collection` ( `member_id` , `post_id` ) VALUES (?,?)";
     db.queryAsync(inserSql, [
         req.body.loginMemberId,
         req.body.postId,
     ])
         .then(r => {
-            console.log('result:', r)
+            // console.log('result:', r)
             res.json(r)
         })
         .catch(error => {
-            console.log(req.body)
+            // console.log(req.body)
             res.json(error)
-            console.log(error)
+            // console.log(error)
         })
 })
 
@@ -46,7 +61,7 @@ router.post('/getpostcollection', (req, res)=>{
 
     })
     .catch(error=>{
-        console.log(error);
+        // console.log(error);
         res.send(error)
     })
 })

@@ -6,7 +6,7 @@ const nodemailer = require("nodemailer");
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, 'public/activity_uploads');
+      cb(null, 'public/activity_img');
     }
   })
 });
@@ -89,13 +89,28 @@ router.post('/addNewAc', upload.single('aKV'), (req, res) => {
     })
     .catch(error => {
       res.json(error)
-      console.log(error)
+      // console.log(error)
+    })
+})
+
+// 更新訂閱、追蹤、按讚資料表
+router.post('/setBFL', (req, res) => {
+  // console.log('setBFL', req.body)
+
+  //準備sql，將post取得資料繫結並執行
+  //抓會員表這邊的資料，
+  const getMstateSql = "SELECT `aLike`, `aBook` FROM `activity` WHERE `aId` = ?"
+  db.queryAsync(getMstateSql, [req.body.aId])
+    .then(res => {
+      // console.log(res)
+      // 接收前端對訂閱、按讚、追蹤的動作，預計要做update
+      // 這一趴等發表完之後再完成了
     })
 })
 
 // 新增留言
 router.post('/activitycontentpage/:Id?', (req, res) => {
-  console.log(req)
+  // console.log(req)
   //準備sql，將post取得資料繫結並執行
   const commentSql = "INSERT INTO `acomment` (`MId`, `aComment`, `aId`) VALUES (?,?,?)"
   db.queryAsync(commentSql, [
@@ -109,7 +124,7 @@ router.post('/activitycontentpage/:Id?', (req, res) => {
     })
     .catch(error => {
       res.json(error)
-      console.log(error)
+      // console.log(error)
     })
 })
 
@@ -135,6 +150,7 @@ router.get('/mbCalendar/:mId', (req, res) => {
 })
 
 //輪播牆前三名活動篩選
+//尚未完成
 router.get('/hotTopThree', (req, res) => {
   let arr = [];
   let topThreeData = [];
