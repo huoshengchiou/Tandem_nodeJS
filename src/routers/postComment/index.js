@@ -28,7 +28,7 @@ router.get('/comments', (req, res)=>{
 
     })
     .catch(error=>{
-        console.log(error);
+        // console.log(error);
         res.send(error)
     })
 })
@@ -47,7 +47,7 @@ router.post('/addNewComment', (req, res)=>{
                 msg: '沒有上傳檔案',
             };
    
-            console.log(req.body)
+            // console.log(req.body)
     const sql = `INSERT INTO \`post_comments\`(\`postComment_content\`,\`member_id\`,\`post_id\` ) 
     VALUES (?, ?, ? )`;
 
@@ -66,7 +66,7 @@ router.post('/addNewComment', (req, res)=>{
             return res.json(output);
         })
         .catch(error=>{
-            console.log(error);
+            // console.log(error);
             return res.json(output);
         })
 
@@ -92,14 +92,14 @@ router.post('/addNewComment', (req, res)=>{
 //刪除留言
 
 router.post('/delpostComment', (req, res)=>{
-    console.log(req.body);
+    // console.log(req.body);
 
     const del_sql = "DELETE FROM `post_comments` WHERE `postComment_id`=?";
     db.queryAsync(del_sql, [req.body.delCommentId])
 
 
         .then(r=>{
-            console.log(r);
+            // console.log(r);
             res.json(r);
         })
 
@@ -110,15 +110,15 @@ router.post('/delpostComment', (req, res)=>{
 
 router.post('/editpostComment', (req, res)=>{
    
-    console.log(req.body)
+    // console.log(req.body)
 
     const edit_sql = "UPDATE `post_comments` SET `postComment_content`=? WHERE `postComment_id`=?"
     db.queryAsync(edit_sql, [req.body.editComment,req.body.editCommentId])
 
         .then(r=>{
-        console.log(req.body);
+        // console.log(req.body);
 
-            console.log(r);
+            // console.log(r);
             res.json(r);
         })
 

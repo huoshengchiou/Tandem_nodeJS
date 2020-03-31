@@ -29,7 +29,7 @@ router.get("/:id", (req, res) => {
 //對database進行字串搜尋
 router.get("/", (req, res) => {
   const urlparts = url.parse(req.url, true);
-  console.log("查詢字串= ", urlparts.query.search);
+  // console.log("查詢字串= ", urlparts.query.search);
   const perPage = 18; //每頁幾筆
   let totalRows, totalPages;
   let page = req.params.page ? parseInt(req.params.page) : 1; //沒有設定頁數就第1頁
@@ -66,7 +66,7 @@ router.get("/", (req, res) => {
     })
     .catch(error => {
       // res.send(error);
-      console.log(error);
+      // console.log(error);
       res.json(output);
     });
 });
@@ -121,15 +121,15 @@ router.get("/search/:type/:vendorId/:price/:orderBy/:page?", (req, res) => {
   let orderBy = req.params.orderBy;
 
   type == 0 ? (type = "%%") : (type = req.params.type);
-  console.log("type=", type);
+  // console.log("type=", type);
 
   vendor == "V000" ? (vendor = "%%") : (vendor = req.params.vendorId); //IF沒有篩VENDOR(VENDOR='V000')就用模糊搜尋
-  console.log("vendor=", vendor);
-  console.log("price", price);
+  // console.log("vendor=", vendor);
+  // console.log("price", price);
   price == 9999 ? (price = 'LIKE "%%"') : (price = req.params.price); //IF沒有篩PRICE(PRICE='9999')就用模糊搜尋
 
   const t_sql = `SELECT COUNT(1) AS num FROM items WHERE itemCategoryId LIKE '${type}' AND itemDeveloperId LIKE '${vendor}' AND itemPrice ${price} ORDER BY ${orderBy}`;
-  console.log("t_sql", t_sql);
+  // console.log("t_sql", t_sql);
   db.queryAsync(t_sql)
     .then(result => {
       totalRows = result[0].num; //總筆數
@@ -206,8 +206,8 @@ router.post("/getCartImg", (req, res) => {
     return;
   }
   const sql = `SELECT * FROM items WHERE itemId IN (?)`;
-  console.log("sql=", sql);
-  console.log(req.body);
+  // console.log("sql=", sql);
+  // console.log(req.body);
   db.queryAsync(sql, [req.body.id]).then(result => {
     res.json({
       result
@@ -217,11 +217,11 @@ router.post("/getCartImg", (req, res) => {
 //抓訂單資訊
 router.post("/orderInfo/", (req, res) => {
   let sql = "SELECT MAX(`orderId`) FROM `item_lists`";
-  console.log(sql);
+  // console.log(sql);
   db.queryAsync(sql, [])
     .then(result => {
       const latestId = result[0]["MAX(`orderId`)"];
-      console.log(latestId);
+      // console.log(latestId);
       const orderInfoSql = `SELECT * FROM item_lists WHERE orderId = '${latestId}'`;
       return db.queryAsync(orderInfoSql);
     })
@@ -237,10 +237,10 @@ router.post("/orderInfo/", (req, res) => {
 router.post("/multipleId", (req, res) => {
   const ids = req.body.productIds;
   // ids.replace("[")
-  console.log("ids", ids);
+  // console.log("ids", ids);
   let sql = `SELECT itemName FROM items WHERE itemId in (${ids})`;
 
-  console.log(sql);
+  // console.log(sql);
   db.queryAsync(sql).then(result => {
     res.json(result);
   });
@@ -258,9 +258,9 @@ router.post("/payment/", (req, res) => {
   const sqlOrder =
     "INSERT INTO `item_lists` (`itemId`,`orderId`,`checkSubtotal`,`userId`) VALUES (?,?,?,?)";
   let orderId = "order_" + new Date().getTime(); //產生orderId
-  console.log(req.body);
-  console.log(orderId);
-  console.log(req.body.itemIds);
+  // console.log(req.body);
+  // console.log(orderId);
+  // console.log(req.body.itemIds);
   db.queryAsync(sqlOrder, [
     req.body.itemIds,
     orderId,
@@ -284,7 +284,7 @@ router.post("/addtolike/", (req, res) => {
   const addmbidtoitem =
     "UPDATE `items` SET `memberFavoriteId`=? WHERE `itemId`=?";
   // const addcount = "UPDATE `items` SET `` "
-  console.log(req.body.userId);
+  // console.log(req.body.userId);
   db.queryAsync(getlikeId, [req.body.userId])
     .then(result => {
       // res.json({
@@ -299,8 +299,8 @@ router.post("/addtolike/", (req, res) => {
       }
 
       azenId_string = JSON.stringify(azenId);
-      console.log(azenId);
-      console.log(azenId_string);
+      // console.log(azenId);
+      // console.log(azenId_string);
       // console.log('newazenId',newazenId)
       // newazenId_string = JSON.stringify(newazenId)
       // console.log('新',newazenId_string)
@@ -314,10 +314,10 @@ router.post("/addtolike/", (req, res) => {
       return db.queryAsync(getmbidfromitem, [req.body.likeproductId]);
     })
     .then(r1 => {
-      console.log(r1);
+      // console.log(r1);
 
       let arr = JSON.parse(r1[0].memberFavoriteId);
-      console.log(arr);
+      // console.log(arr);
       if (arr.indexOf(req.body.userId) == -1) {
         arr.push(req.body.userId);
       }
@@ -326,7 +326,7 @@ router.post("/addtolike/", (req, res) => {
       return db.queryAsync(addmbidtoitem, [arr_string, req.body.likeproductId]);
     })
     .then(r2 => {
-      console.log("最後memberFavorId結果", r2);
+      // console.log("最後memberFavorId結果", r2);
     });
 });
 
@@ -354,10 +354,10 @@ router.post("/unAzen",(req,res)=>{
       return db.queryAsync(getmbidfromitem, [req.body.unlikeproductId]);
     })
     .then(r1 => {
-      console.log(r1);
+      // console.log(r1);
 
       let arr = JSON.parse(r1[0].memberFavoriteId);
-      console.log(arr);
+      // console.log(arr);
       if (arr.indexOf(req.body.userId) !== -1) {
         newarr = arr.filter(id=>id!==req.body.userId);
       }
@@ -368,7 +368,7 @@ router.post("/unAzen",(req,res)=>{
 })
 //抓COUPON圖片
 router.post("/getCoupon", (req, res) => {
-  console.log("req.body.sId", req.body.sId);
+  // console.log("req.body.sId", req.body.sId);
   const sql = "SELECT * FROM sales WHERE sId = ?";
   db.queryAsync(sql, [req.body.sId]).then(r => {
     res.json({ r });
@@ -392,7 +392,7 @@ router.post("/confirmOrderEmail", (req, res) => {
   req.body.productName.forEach((item, value) => {
     name = name.concat(`<p>(${value + 1})${item}</p>`);
   });
-  console.log(name);
+  // console.log(name);
   const mailOptions = {
     from: "tandem20200401@gmail.com",
     to: "tandem20200401@gmail.com",
@@ -426,11 +426,11 @@ router.post("/confirmOrderEmail", (req, res) => {
     //     console.log('Email Sent')
     // }
     .then(function(response) {
-      console.log("Email Sent");
+      // console.log("Email Sent");
       return;
     })
     .catch(function(error) {
-      console.log("error", error);
+      // console.log("error", error);
     });
 });
 
@@ -447,10 +447,10 @@ router.post("/findmycup", (req, res) => {
   db.queryAsync(sql, [req.body.mbId])
     .then(r => {
       const oristring = r[0].mbCup;
-      console.log(oristring);
+      // console.log(oristring);
       const arr = oristring.split(",");
       // arr = JSON.stringify(oristring)
-      console.log(arr);
+      // console.log(arr);
       const sql2 = `SELECT \* FROM \`sales\` WHERE \`sId\` IN (?)`;
       return db.queryAsync(sql2, [arr]);
     })
@@ -510,12 +510,12 @@ router.post("/insert", upload.none(), (req, res) => {
     .then(r => {
       output.result = r;
       output.success = true;
-      console.log("result", r);
+      // console.log("result", r);
       return res.json(output);
     })
     .catch(error => {
       // res.send(error);
-      console.log(error);
+      // console.log(error);
       return res.json(output);
     });
   // res.json(req.body)
@@ -584,12 +584,12 @@ router.post("/edit/:itemId", upload.none(), (req, res) => {
     .then(r => {
       output.result = r;
       output.success = true;
-      console.log("result", r);
+      // console.log("result", r);
       return res.json(output);
     })
     .catch(error => {
       // res.send(error);
-      console.log(error);
+      // console.log(error);
       return res.json(output);
     });
   // res.json(req.body)
@@ -598,25 +598,25 @@ router.post("/edit/:itemId", upload.none(), (req, res) => {
 router.post("/del/:itemId", (req, res) => {
   const sql = "DELETE FROM `items` WHERE `itemId`=?";
   db.queryAsync(sql, [req.params.itemId]).then(r => {
-    console.log(r);
+    // console.log(r);
     res.json(r);
   });
 });
 //加入購物車
 router.get("/addToCart/:itemId", (req, res) => {
   //寫入產品itemId進session
-  console.log(req.params);
+  // console.log(req.params);
 
   if (!req.session["shopping_item"]) {
     req.session["shopping_item"] = [];
     req.session["shopping_item"].push(req.params.itemId);
   } else {
-    console.log("already have");
+    // console.log("already have");
     req.session["shopping_item"].push(req.params.itemId);
   }
 
   // req.session['shopping_item'].push(req.params.itemId);
-  console.log(req.session);
+  // console.log(req.session);
 
   res.json(req.session);
 });
@@ -637,7 +637,7 @@ router.get("/cart", (req, res) => {
   if (req.session.shopping_item && req.session.shopping_item.length > 0) {
     let row = [];
     let item = req.session.shopping_item;
-    console.log(item);
+    // console.log(item);
     // req.session.shopping_item.forEach((item,idx)=>{
     //     // console.log(item);
     db.queryAsync(sql, [item]).then(result => {
@@ -677,16 +677,16 @@ router.get("/cart/del/:itemId", (req, res) => {
 //購物車內容形成訂單
 let ordercontent = {}; //save query result
 router.post("/addToCheck", (req, res) => {
-  console.log(req.body.itemId);
+  // console.log(req.body.itemId);
   //  res.send('addTocheck');
   const sql = "SELECT * FROM `items` WHERE itemId IN (?)";
   db.queryAsync(sql, [req.body.itemId])
     .then(result => {
-      console.log(result);
+      // console.log(result);
       //  for(let k=0;k<result.length;k++){
       //  let itemId = result[0].itemId,price = result[0].itemPrice;
       //  }
-      console.log(result.length); //長度
+      // console.log(result.length); //長度
       //  console.log('名稱: '+itemId)
       for (let i = 0; i < result.length; i++) {
         ordercontent[i] = {
@@ -695,13 +695,13 @@ router.post("/addToCheck", (req, res) => {
         };
       }
       //  ordercontent['itemId']=itemId;
-      console.log(ordercontent);
+      // console.log(ordercontent);
       //寫入orders資料表以取得orderId
       const sqlOrder = "INSERT INTO `orders` (`username`) VALUES (?)";
       return db.queryAsync(sqlOrder, [req.session.loginUser]);
     })
     .then(r => {
-      console.log("最新: " + r.insertId); //取得最新orders id
+      // console.log("最新: " + r.insertId); //取得最新orders id
       // console.log(r.insertId)
       // let params = r.insertId;
       //寫訂單資訊進資料表item_lists
