@@ -7,15 +7,15 @@ const router = express.Router();
 router.get("/:page", async (req, res) => {
   //   console.dir(req);
   //   console.dir(req.url);
-  console.log("eeeer");
-  console.log(req.query);
-  console.log(req.params);
+  // console.log("eeeer");
+  // console.log(req.query);
+  // console.log(req.params);
   const perPage = 2;
   let totalRows, totalPages;
   let page = req.params.page ? parseInt(req.params.page) : 1;
   let cond;
   let search = req.query.search;
-  console.log(search);
+  //console.log(search);
 
   if (req.query.search == null) {
     cond = 1;
@@ -90,6 +90,7 @@ router.get("/:page", async (req, res) => {
 //     res.status(400);
 //     res.end();
 //   } else {
+
 //   }
 // });
 
@@ -131,8 +132,8 @@ router.get("/sales/:sId", (req, res) => {
 router.get("/sales/:sId/get", (req, res) => {
   const sId = req.params.sId;
   const mbId = req.query.mbId;
-  console.log(sId);
-  console.log(mbId);
+  //console.log(sId);
+  //console.log(mbId);
 
   const sql = `UPDATE sales SET getId = CASE getId WHEN "" THEN "${mbId}" ELSE CONCAT(getId, ",", "${mbId}") END WHERE sId="${sId}"`;
 
