@@ -12,7 +12,7 @@ router.post('/articlepost', (req, res) => {
         success:false,
         result:{}
     }
-    console.log(req.body)
+    // console.log(req.body)
     const sql = `INSERT INTO \`articles\` ( \`articleAuthor\` , \`articleName\` , \`articleCategoryId\` , \`articleClassId\` , \`articleContent\` , \`created_at\`  ) VALUES (?,?,?,?,?,NOW())`;
     db.queryAsync(sql, [
         req.body.mbId,
@@ -22,14 +22,14 @@ router.post('/articlepost', (req, res) => {
         req.body.articleContent,
     ])
         .then(r => {
-            console.log('result:', r)
+            // console.log('result:', r)
             output.success=true;
             output.result=r
             return res.json(output)
         })
         .catch(error => {
             return res.json(output)
-            console.log(error)
+            // console.log(error)
         })
 })
 
@@ -38,7 +38,7 @@ router.post('/articlepost', (req, res) => {
 router.get("/hot", function(req, res){
     const sql = `SELECT * FROM articles ORDER BY updated_at DESC LIMIT 4 ;`;
     db.queryAsync(sql).then(result =>{
-        console.log(result)
+        // console.log(result)
         return res.json(result);
     })
 })
@@ -80,7 +80,7 @@ router.post('/del/:ArticleId', (req, res)=>{
     const sql = "DELETE FROM `articles` WHERE `articleId`=?";
     db.queryAsync(sql, [req.params.articleId])
         .then(r=>{
-            console.log(r);
+            // console.log(r);
             res.json(r);
     })
 });
@@ -88,7 +88,7 @@ router.post('/del/:ArticleId', (req, res)=>{
 
 //取得文章下面的留言
 router.get("/article_comments/:articleId", (req, res) => {
-    console.log('req',req)
+    // console.log('req',req)
     let articleId = req.params.articleId;
     // const sql = `SELECT * FROM shop_comments WHERE itemId =${productId}`;
     const sql = `SELECT * FROM article_comments INNER JOIN mb_info ON article_comments.mbId = mb_info.mbId WHERE articleId =${articleId}`;
@@ -151,7 +151,7 @@ router.get("/", function(req, res){
             row.created_at = moment(row.created_at).format(dateFormat);
             row.updated_at = moment(row.updated_at).format(dateFormat);
         }) 
-    console.log(result)
+    // console.log(result)
      res.json(result);
 })
 })
